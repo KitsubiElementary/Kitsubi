@@ -1,13 +1,13 @@
-package kitsubi
+package main
 
 import (
-    "fmt"
-    "net/http"
-    "io/ioutil"
-    "os"
-)
-func main()
-{
+	"fmt"
 
-	resp, err := http.Get("http://example.com/")
+	"./services"
+)
+
+func main() {
+	a := (services.KitsuService{"sifi", "123", ""})
+	a.GetUserId()
+	fmt.Print("test")
 }

@@ -5,26 +5,30 @@ import (
 	"net/http"
 )
 
+// RESTConnection is blablba
 type RESTConnection struct {
-	URL       string
+	Api       string
+	Path      string
 	Operation string
 	Body      string
 }
 
-func (r *RESTConnection) connect() []byte {
-	switch op := r.Operation; op {
-	case "GET":
-		return HTTPGet(r.URL)
-		break
+func (r *RESTConnection) Connect() []byte {
+	if r.Operation != "GET" {
+
+	} else {
+		return httpGet(r)
 	}
+
 	return nil
 }
 
-func HTTPGet(url string) []byte {
-	resp, err := http.Get(url)
-	if err != nil {
+func httpGet(request *RESTConnection) []byte {
+	resp, err := http.Get(request.Api + request.Path)
+	if err == nil {
+		defer resp.Body.Close()
 		contents, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
+		if err == nil {
 			return contents
 		}
 	}
