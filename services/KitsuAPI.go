@@ -10,13 +10,24 @@ type KitsuService struct {
 }
 
 func (r *KitsuService) GetUserId() {
-	var a bodyKitsu
-	json.Unmarshal(r.connect("/edge/users?filter[name]="+r.Username), &a)
-	r.Id = a.data[0].id
+	var i map[string]interface{}
+	//var i
+	err := json.Unmarshal(r.connect("/edge/users?filter[slug]="+r.Username), &i)
+	if err == nil {
+		r.Id = i["data"].([]interface{})[0].(map[string]interface{})["id"].(string)
+	}
 }
 
 func (r *KitsuService) GetUserLibrary() {
-	r.connect("/edge/users/" + r.Id + "/library-entries")
+	if r.Id == "" {
+		r.GetUserId()
+	}
+	var i map[string]interface{}
+	err := json.Unmarshal(r.connect("/edge/users/"+r.Id+"/library-entries"), &i)
+	if err == nil {
+
+	}
+
 }
 
 func (r *KitsuService) connect(service string) []byte {
@@ -24,10 +35,10 @@ func (r *KitsuService) connect(service string) []byte {
 	return s.Connect()
 }
 
-type bodyKitsu struct {
-	data []userListfield
+type data struct {
+	data *[]userListfield
 }
 
 type userListfield struct {
-	id string
+	id *string
 }

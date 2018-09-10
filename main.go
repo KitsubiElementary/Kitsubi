@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	a := (services.KitsuService{"sifi", "123", ""})
-	a.GetUserId()
+	a := (services.KitsuService{"sifiro", "123", ""})
+	a.GetUserLibrary()
 	fmt.Print("test")
 }
