@@ -8,6 +8,6 @@ import (
 
 func main() {
 	a := (services.KitsuService{"sifiro", "123", ""})
-	a.GetUserLibrary()
-	fmt.Print("test")
+	v := a.GetUserLibrary()
+	fmt.Print(v[0])
 }
