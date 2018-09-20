@@ -6,27 +6,27 @@ import "time"
 // KitsuService is
 type KitsuService struct {
 	Username string
-	Password string
-	Id       string
+	ID       string
 }
 
-func (r *KitsuService) GetUserId() {
+func (r *KitsuService) getUserID() {
 	var i map[string]interface{}
 	//var i
-	err := json.Unmarshal(r.connect("/edge/users?filter[slug]="+r.Username), &i)
+	err := json.Unmarshal(r.connect("edge/users?filter[slug]="+r.Username), &i)
 	if err == nil {
-		r.Id = i["data"].([]interface{})[0].(map[string]interface{})["id"].(string)
+		r.ID = i["data"].([]interface{})[0].(map[string]interface{})["id"].(string)
 	}
 }
 
-func (r *KitsuService) GetUserLibrary() []AnimeList {
+// GetUserEntries : Get Last Entries of a User
+func (r *KitsuService) GetUserEntries() []AnimeList {
 	var anime []AnimeList
 
-	if r.Id == "" {
-		r.GetUserId()
+	if r.ID == "" {
+		r.getUserID()
 	}
 	var i map[string]interface{}
-	err := json.Unmarshal(r.connect("/edge/users/"+r.Id+"/library-entries"), &i)
+	err := json.Unmarshal(r.connect("edge/users/"+r.ID+"/library-entries"), &i)
 	if err == nil {
 		AnimeLists := i["data"].([]interface{})
 		for index, element := range AnimeLists {
@@ -36,7 +36,10 @@ func (r *KitsuService) GetUserLibrary() []AnimeList {
 			if err == nil {
 				anime = append(anime,
 					AnimeList{
-						Selector["id"].(string), "", 0, time})
+						ID:                Selector["id"].(string),
+						Name:              r.GetAnimeInfo(Selector["id"].(string)).Name,
+						ChapterInProgress: 0,
+						updatedAt:         time})
 			}
 			index++
 		}
@@ -45,14 +48,26 @@ func (r *KitsuService) GetUserLibrary() []AnimeList {
 	return anime
 }
 
-func (r *KitsuService) connect(service string) []byte {
-	s := RESTConnection{"https://kitsu.io/api", service, "GET", ""}
-	return s.Connect()
+// GetAnimeInfo get Anime Information by Id
+func (r *KitsuService) GetAnimeInfo(id string) AnimeInfo {
+	r.connect("edge/library-entries/")
+	return AnimeInfo{Name: ""}
 }
 
+func (r *KitsuService) connect(service string) []byte {
+	s := restConnection{API: "https://kitsu.io/api/", Path: service, Operation: "GET"}
+	return s.connect()
+}
+
+// AnimeList is a struct formatted usually with a Array of Current Anime Status from a User
 type AnimeList struct {
 	ID                string
 	Name              string
 	ChapterInProgress int
 	updatedAt         time.Time
+}
+
+// AnimeInfo is a Struct that represent Anime's information from Kitsu's Database
+type AnimeInfo struct {
+	Name string
 }
