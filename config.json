@@ -1,11 +1,11 @@
 {
     "client":{
     "KitsuUsername":"",
-    "KitsuUserID":""
+    "KitsuUserID":"",
+    "TwitterConsumerAPIkeys":"",
+    "TwitterConsumerAPIkeysSecret":""
     },
-    "twitter":{    
-        "TwitterConsumerAPIkeys":"",
-        "TwitterConsumerAPIkeysSecret":"",
+    "twitterAppToken":{    
         "TwitterAccessToken":"",
         "TwitterAccessTokenSecret":""
     }
