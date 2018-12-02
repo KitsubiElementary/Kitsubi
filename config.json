@@ -1,0 +1,12 @@
+{
+    "client":{
+    "KitsuUsername":"",
+    "KitsuUserID":""
+    },
+    "twitter":{    
+        "TwitterConsumerAPIkeys":"",
+        "TwitterConsumerAPIkeysSecret":"",
+        "TwitterAccessToken":"",
+        "TwitterAccessTokenSecret":""
+    }
+}
