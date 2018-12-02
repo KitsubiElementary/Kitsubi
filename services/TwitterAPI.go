@@ -75,6 +75,12 @@ func (r *TwitterAPI) FormatHeaderSignature(oauthNounce string, timestamp string)
 	return Signature
 }
 
+func (r *TwitterAPI) encryptSignature(signatureClean string) string {
+	return strings.Replace(
+		/*url.PathEscape(*/
+		computeHmacSHA1(signatureClean, url.PathEscape(r.TwitterConsumerAPIkeysSecret+"&"+r.TwitterAccessTokenSecret) /*)*/), "=", "%3D", -1)
+}
+
 func (r *TwitterAPI) createAuth(operation string, service string, body string) string {
 	service = url.PathEscape(service)
 	service = strings.Replace(service, ":", "%3A", -1)
@@ -82,16 +88,17 @@ func (r *TwitterAPI) createAuth(operation string, service string, body string) s
 	body = strings.Replace(body, ":", "%3A", -1)
 
 	//var oauthNounce = base64.StdEncoding.EncodeToString([]byte(RandStringRunes(32)))
-	var oauthNounce = RandStringRunes(42)
+	var oauthNounce = RandStringRunes(32)
 
-	var timestamp = strconv.FormatInt(time.Now().UnixNano(), 10)
+	var timestamp = strconv.FormatInt(time.Now().Unix(), 10)
 	var headerSignature = r.FormatHeaderSignature(oauthNounce, timestamp)
-	var signatureClean = url.PathEscape(strings.ToUpper(operation) + "&" + service + "&" + headerSignature + "&" + url.PathEscape(string(body)))
+	var signatureClean = strings.ToUpper(operation) + "&" + service + "&" + headerSignature + "&" + string(body)
+
 	fmt.Print("Content Signature to Encrypt: \n" + signatureClean)
-	return "\"OAuth oauth_consumer_key=\"" + r.TwitterConsumerAPIkeys + "\", " +
+
+	return "OAuth oauth_consumer_key=\"" + r.TwitterConsumerAPIkeys + "\", " +
 		"oauth_nonce=\"" + oauthNounce +
-		"\", oauth_signature=\"" +
-		computeHmacSHA1(signatureClean, url.PathEscape(r.TwitterConsumerAPIkeysSecret+"&"+r.TwitterAccessTokenSecret)) +
+		"\", oauth_signature=\"" + r.encryptSignature(signatureClean) +
 		"\", " + "oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"" + timestamp + "\", " +
 		"oauth_token=\"" + r.TwitterAccessToken + "\", oauth_version=\"1.0\""
 }
@@ -110,6 +117,6 @@ func (r *TwitterAPI) connect(service string, operation string, body []byte) []by
 }
 
 type twitterPost struct {
-	Status    string
-	Media_ids string
+	Status   string `json:"status"`
+	MediaIds string `json:"media_ids"`
 }
