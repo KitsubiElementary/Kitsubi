@@ -11,22 +11,35 @@ type restConnection struct {
 	API       string
 	Path      string
 	Operation string
-	Body      string
+	Body      []byte
+	Header    [][]string
 }
 
 func (r *restConnection) connect() []byte {
-	if r.Operation != "GET" {
-		return httpPost(r)
-	} else {
-		return httpGet(r)
+	switch r.Operation {
+	case "GET":
+		httpPost(r)
+		break
+	case "POST":
+		httpPost(r)
+		break
+	default:
+		return nil
 	}
+	return nil
 }
 
 func httpPost(request *restConnection) []byte {
-
-	resp, err := http.Post(request.API+request.Path, "json", bytes.NewBufferString(request.Body))
+	// "application/json"
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", request.API+request.Path, bytes.NewBuffer(request.Body))
+	for index, element := range request.Header {
+		req.Header.Add(element[0], element[1])
+		index++
+	}
+	resp, err := client.Do(req)
 	if err == nil {
-		defer resp.Body.Close()
+		defer req.Body.Close()
 		contents, err := ioutil.ReadAll(resp.Body)
 		if err == nil {
 			return contents
