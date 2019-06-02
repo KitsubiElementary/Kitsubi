@@ -1,7 +1,9 @@
 package services
 
-import "encoding/json"
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // KitsuService is
 type KitsuService struct {
@@ -38,7 +40,7 @@ func (r *KitsuService) GetUserEntries() []AnimeList {
 					AnimeList{
 						ID:                Selector["id"].(string),
 						Name:              r.GetAnimeInfo(Selector["id"].(string)).Name,
-						ChapterInProgress: 0,
+						ChapterInProgress: int(status["progress"].(float64)),
 						updatedAt:         time})
 			}
 			index++
@@ -50,7 +52,12 @@ func (r *KitsuService) GetUserEntries() []AnimeList {
 
 // GetAnimeInfo get Anime Information by Id
 func (r *KitsuService) GetAnimeInfo(id string) AnimeInfo {
-	r.connect("edge/library-entries/")
+	var q map[string]interface{}
+	err := json.Unmarshal(r.connect("edge/library-entries/"+id+"/anime"), &q)
+	if err == nil {
+		animeInfo := q["data"].(map[string]interface{})["attributes"].(map[string]interface{})
+		return AnimeInfo{Name: animeInfo["canonicalTitle"].(string)}
+	}
 	return AnimeInfo{Name: ""}
 }
 
