@@ -18,15 +18,12 @@ type restConnection struct {
 func (r *restConnection) connect() []byte {
 	switch r.Operation {
 	case "GET":
-		httpPost(r)
-		break
+		return httpGet(r)
 	case "POST":
-		httpPost(r)
-		break
+		return httpPost(r)
 	default:
 		return nil
 	}
-	return nil
 }
 
 func httpPost(request *restConnection) []byte {
